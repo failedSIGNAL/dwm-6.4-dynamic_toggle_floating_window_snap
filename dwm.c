@@ -1709,6 +1709,13 @@ sigchld(int unused)
 void
 spawn(const Arg *arg)
 {
+	const Rule *r;
+	for (unsigned int i = 0; i < LENGTH(rules); i++) 
+	{
+		r = &rules[i];
+		if (r->istoggleable)
+			selmon->tagset[selmon->seltags] &= ~r->tags;
+	}
 	if (fork() == 0) {
 		if (dpy)
 			close(ConnectionNumber(dpy));
