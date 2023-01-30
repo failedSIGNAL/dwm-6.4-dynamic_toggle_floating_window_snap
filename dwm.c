@@ -54,6 +54,8 @@
 #define MOUSEMASK               (BUTTONMASK|PointerMotionMask)
 #define WIDTH(X)                ((X)->w + 2 * (X)->bw)
 #define HEIGHT(X)               ((X)->h + 2 * (X)->bw)
+#define MON_HEIGHT(X)			((X)->showbar ? (X)->mh - bh : (X)->mh)								// Effective height 
+#define MON_Y(X)				((X)->showbar ? ((X)->topbar? (X)->my + bh : (X)->my) : (X)->my) 	// Effective Y 
 #define TAGMASK                 ((1 << LENGTH(tags)) - 1)
 #define TEXTW(X)                (drw_fontset_getwidth(drw, (X)) + lrpad)
 
@@ -1287,25 +1289,22 @@ recttomon(int x, int y, int w, int h)
 void 
 readjustclient(Client *c, int x, int y, int w, int h)
 {
-	if (w > selmon->mw)
-		w = selmon->mw;
-	if (h > selmon->mh)
-		h = selmon->mh;
+	if (w + 2*c->bw > selmon->mw)
+		w = selmon->mw - 2*c->bw;
+	if (h + 2*c->bw > MON_HEIGHT(selmon))
+		h = MON_HEIGHT(selmon) - 2*c->bw;
 
 	int x_diff = (x + w + 2*c->bw) - (selmon->mx + selmon->mw);
-	int y_diff = (y + h + 2*c->bw) - (selmon->my + selmon->mh);
+	int y_diff = (y + h + 2*c->bw) - (MON_Y(selmon) + MON_HEIGHT(selmon));
 
 	// overflow
 	if ((x_diff + float_snap > 0) || (x_diff > 0))
-		x = selmon->mx + selmon->mw - w;
+		x = selmon->mx + selmon->mw - w - 2*c->bw;
 	if ((y_diff + float_snap > 0) || (y_diff > 0))
-		y = selmon->my + selmon->mh - h;
+		y = MON_Y(selmon) + MON_HEIGHT(selmon) - h - 2*c->bw;
 
 	x = x < float_snap? 0 : x;
-	if (selmon->showbar)
-		y = selmon->topbar ? (y < bh + float_snap ? bh : y) : y;
-	else 
-		y = y < float_snap ? 0 : y;
+	y = y < MON_Y(selmon) + float_snap ? MON_Y(selmon) : y;
 	resizeclient(c, x, y, w, h);
 }
 
