@@ -1303,7 +1303,7 @@ readjustclient(Client *c, int x, int y, int w, int h)
 
 	x = x < float_snap? 0 : x;
 	if (selmon->showbar)
-		y = selmon->topbar ? (y < bh ? bh : y) : y;
+		y = selmon->topbar ? (y < bh + float_snap ? bh : y) : y;
 	else 
 		y = y < float_snap ? 0 : y;
 	resizeclient(c, x, y, w, h);
