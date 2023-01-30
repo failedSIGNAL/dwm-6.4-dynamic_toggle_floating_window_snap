@@ -1296,16 +1296,16 @@ readjustclient(Client *c, int x, int y, int w, int h)
 	int y_diff = (y + h + 2*c->bw) - (selmon->my + selmon->mh);
 
 	// overflow
-	if (x_diff > 0)
-		x = x - x_diff;
-	if (y_diff > 0)
-		y = y - y_diff;
-	if (x < 0)
-		x = 0;
+	if ((x_diff + float_snap > 0) || (x_diff > 0))
+		x = selmon->mx + selmon->mw - w;
+	if ((y_diff + float_snap > 0) || (y_diff > 0))
+		y = selmon->my + selmon->mh - h;
+
+	x = x < float_snap? 0 : x;
 	if (selmon->showbar)
 		y = selmon->topbar ? (y < bh ? bh : y) : y;
 	else 
-		y = y < 0 ? 0 : y;
+		y = y < float_snap ? 0 : y;
 	resizeclient(c, x, y, w, h);
 }
 
